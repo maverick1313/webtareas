@@ -1,0 +1,71 @@
+    <div id="floating-panel">
+      <input id="latlng" type="text" value="40.714224,-73.961452">
+      <input id="submit" type="button" value="Reverse Geocode">
+    </div>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 8,
+          center: {lat: 40.731, lng: -73.997}
+        });
+        var geocoder = new google.maps.Geocoder;
+        var infowindow = new google.maps.InfoWindow;
+
+        document.getElementById('submit').addEventListener('click', function() {
+          geocodeLatLng(geocoder, map, infowindow);
+        });
+      }
+
+      function geocodeLatLng(geocoder, map, infowindow) {
+        var input = document.getElementById('latlng').value;
+        var latlngStr = input.split(',', 2);
+        var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+        geocoder.geocode({'location': latlng}, function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+              map.setZoom(11);
+              var marker = new google.maps.Marker({
+                position: latlng,
+                map: map
+              });
+           //   infowindow.setContent(results[1].formatted_address);
+           // Updated Code Start 
+           var streetNumber;
+        var streetName;
+        var city;
+        var state;
+        var zip;
+        var country;
+        for(var i = 0; i < results[0].address_components.length; i++){
+        for(var k = 0; k < results[0].address_components[i].types.length; k++){
+          if (results[0].address_components[i].types[k] == "street_number")
+            streetNumber = results[0].address_components[i].long_name;
+          else if (results[0].address_components[i].types[k] == "route")
+            streetName = results[0].address_components[i].short_name;
+          else if (results[0].address_components[i].types[k] == "locality")
+            city = results[0].address_components[i].long_name;
+          else if (results[0].address_components[i].types[k] == "administrative_area_level_1")
+            state = results[0].address_components[i].long_name;
+          else if (results[0].address_components[i].types[k] == "postal_code")
+            zip = results[0].address_components[i].long_name;
+          else if (results[0].address_components[i].types[k] == "country")
+            country = results[0].address_components[i].long_name;
+        }
+        }
+              
+infowindow.setContent('Street Number: ' + streetNumber + '<br>Street Name: ' + streetName + '<br>City: '+ city + '<br>State: ' + state + '<br>Zip: '+ zip + '<br>Country: '+ country);  
+              infowindow.open(map, marker);
+           // Updated Code End   
+            } else {
+              window.alert('No results found');
+            }
+          } else {
+            window.alert('Geocoder failed due to: ' + status);
+          }
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAiv81Y-Lxq29oo1wo7oxo98w_OhwVfT64&callback=initMap">
+    </script>
